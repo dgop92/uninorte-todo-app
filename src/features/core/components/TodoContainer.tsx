@@ -1,40 +1,52 @@
 import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import { useCallback, useEffect, useState } from "react";
 import { SearchTodoHeader } from "./SearchTodoHeader";
 import { TodoItem } from "./TodoItem";
-
-const TODOS = [
-  {
-    id: 1,
-    title: "This is my first task",
-    completed: false,
-    createdAt: new Date(),
-    dueDate: new Date("2023-03-24T01:32:53.104Z"),
-  },
-  {
-    id: 2,
-    title: "This is my second task",
-    completed: false,
-    createdAt: new Date("2023-01-04T01:32:53.104Z"),
-    dueDate: new Date("2023-02-15T01:32:53.104Z"),
-  },
-  {
-    id: 3,
-    title: "Our unknown title",
-    completed: true,
-    createdAt: new Date("2023-02-04T01:32:53.104Z"),
-    dueDate: new Date("2023-05-24T01:32:53.104Z"),
-  },
-];
+import { Todo } from "../entities/todo";
+import { todoRepository } from "../repositories/repository-factory";
 
 export function TodoContainer() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchTodos = useCallback(async () => {
+    setLoading(true);
+    const todosData = await todoRepository.getManyBy({
+      sortBy: { dueDate: "asc" },
+      searchBy: { title: searchTerm === "" ? undefined : searchTerm },
+    });
+    setTodos(todosData);
+    setLoading(false);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
+
   return (
     <Stack flexGrow={1}>
-      <SearchTodoHeader />
-      <Stack gap={1} mt={4}>
-        {TODOS.map((todo) => (
+      <SearchTodoHeader
+        searchTerm={searchTerm}
+        onSearchTermChange={setSearchTerm}
+      />
+      {loading && (
+        <LinearProgress sx={{ mt: 5, width: "95%", alignSelf: "center" }} />
+      )}
+      <Box
+        mt={4}
+        gap={2}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(550px, 1fr))",
+        }}
+      >
+        {todos.map((todo) => (
           <TodoItem key={todo.id} todo={todo} />
         ))}
-      </Stack>
+      </Box>
     </Stack>
   );
 }

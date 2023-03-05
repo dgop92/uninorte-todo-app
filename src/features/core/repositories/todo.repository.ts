@@ -8,6 +8,22 @@ import { Todo } from "../entities/todo";
 import { TodoCreateInput, TodoSearchInput } from "../schema-types";
 import { ITodoRepository } from "./definitions/todo.def.repository";
 
+interface JsonServerTodo {
+  id: number;
+  title: string;
+  completed: boolean;
+  dueDate: string;
+  createdAt: string;
+}
+
+export function jsonServerTodoToDomain(todo: JsonServerTodo): Todo {
+  return {
+    ...todo,
+    dueDate: new Date(todo.dueDate),
+    createdAt: new Date(todo.createdAt),
+  };
+}
+
 export class JsonServerTodoRepository implements ITodoRepository {
   private baseUrl = "/todos";
 
@@ -28,8 +44,8 @@ export class JsonServerTodoRepository implements ITodoRepository {
 
   async getById(id: number): Promise<Todo> {
     const url = `${this.baseUrl}/${id}`;
-    const { data } = await axiosClient.get<Todo>(url);
-    return data;
+    const { data } = await axiosClient.get<JsonServerTodo>(url);
+    return jsonServerTodoToDomain(data);
   }
 
   async getManyBy(input: TodoSearchInput): Promise<Todo[]> {
@@ -49,7 +65,7 @@ export class JsonServerTodoRepository implements ITodoRepository {
     const queryString = urlSearchParams.toString();
 
     const url = `${this.baseUrl}?${queryString}`;
-    const { data } = await axiosClient.get<Todo[]>(url);
-    return data;
+    const { data } = await axiosClient.get<JsonServerTodo[]>(url);
+    return data.map(jsonServerTodoToDomain);
   }
 }
