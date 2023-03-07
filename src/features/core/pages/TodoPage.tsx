@@ -1,11 +1,37 @@
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
-import { AddTodoCard } from "../components/AddTodoCard";
+import Fab from "@mui/material/Fab";
+import AddIcon from "@mui/icons-material/Add";
+import { useState } from "react";
+import { useSnackbar } from "notistack";
+import { AddTodo } from "../components/AddTodo";
 import { TodoContainer } from "../components/TodoContainer";
+import { useThemeMediaQuery } from "../../../styles/hooks";
+import { AddTodoModal } from "../components/AddTodoModal";
 
 export function TodoPage() {
+  const isDownLg = useThemeMediaQuery((theme) => theme.breakpoints.down("lg"));
+  const [open, setOpen] = useState(false);
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const onNewTodo = () => {
+    enqueueSnackbar("New todo added", {
+      variant: "success",
+      autoHideDuration: 2000,
+      anchorOrigin: {
+        vertical: "bottom",
+        horizontal: "right",
+      },
+    });
+  };
+
   return (
-    <Stack /* height="100%" */>
+    <Stack>
       <Typography
         variant="h2"
         component="h1"
@@ -13,7 +39,7 @@ export function TodoPage() {
           fontFamily: "titleFontFamily",
           fontWeight: 700,
           textAlign: "center",
-          fontSize: 64,
+          fontSize: { lg: 64, md: 48, xs: 32 },
           px: 2,
           py: 6,
         }}
@@ -24,15 +50,30 @@ export function TodoPage() {
         direction="row"
         width="100%"
         alignItems="flex-start"
+        alignSelf="center"
         maxWidth={1600}
-        // flexGrow={1}
-        margin="auto"
         gap={2}
-        px={2}
+        sx={{ px: { xs: 1, sm: 2 } }}
       >
-        <AddTodoCard />
+        {isDownLg ? (
+          <AddTodoModal open={open} onClose={onClose}>
+            <AddTodo cardWidth="100%" onNewTodo={onNewTodo} />
+          </AddTodoModal>
+        ) : (
+          <AddTodo cardWidth={500} onNewTodo={onNewTodo} />
+        )}
         <TodoContainer />
       </Stack>
+      {isDownLg && (
+        <Fab
+          onClick={() => setOpen(true)}
+          color="primary"
+          aria-label="add"
+          sx={{ position: "sticky", bottom: 18, alignSelf: "flex-end", mr: 2 }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
     </Stack>
   );
 }

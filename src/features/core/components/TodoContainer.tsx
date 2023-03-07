@@ -22,6 +22,8 @@ export function TodoContainer() {
     setLoading(false);
   }, [searchTerm]);
 
+  console.log("todoContainer render");
+
   useEffect(() => {
     fetchTodos();
   }, [fetchTodos]);
@@ -40,7 +42,11 @@ export function TodoContainer() {
         gap={2}
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(550px, 1fr))",
+          gridTemplateColumns: {
+            xs: "repeat(auto-fill, minmax(300px, 1fr))",
+            md: "repeat(auto-fill, minmax(500px, 1fr))",
+          },
+          overflow: "auto",
         }}
       >
         {todos.map((todo) => (
