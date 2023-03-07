@@ -11,6 +11,7 @@ import { BaseCard } from "./BaseCard";
 import { Todo, TodoCreateInputSchema } from "../entities/todo";
 import { TodoCreateInput } from "../schema-types";
 import { todoRepository } from "../repositories/repository-factory";
+import { validateDueDate } from "../utils/validations";
 
 type TodoCreateInputForm = Omit<TodoCreateInput, "dueDate">;
 const TodoCreateInputFormSchema = TodoCreateInputSchema.fork(
@@ -30,20 +31,18 @@ export function AddTodo({ onNewTodo, cardWidth = 500 }: AddTodoCardProps) {
   const [dueDateError, setDueDateError] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<TodoCreateInputForm> = async (data) => {
-    console.log("submit");
-    console.log(data);
-    if (dueDate) {
-      if (dueDate.isValid()) {
+    try {
+      if (validateDueDate(dueDate)) {
         const todo = await todoRepository.create({
           title: data.title,
           dueDate: dueDate.toDate(),
         });
         onNewTodo(todo);
-      } else {
-        setDueDateError("Due date is invalid");
       }
-    } else {
-      setDueDateError("Due date is required");
+    } catch (e) {
+      if (e instanceof Error) {
+        setDueDateError(e.message);
+      }
     }
   };
 

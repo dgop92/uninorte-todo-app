@@ -1,33 +1,23 @@
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
-import { useCallback, useEffect, useState } from "react";
 import { SearchTodoHeader } from "./SearchTodoHeader";
 import { TodoItem } from "./TodoItem";
 import { Todo } from "../entities/todo";
-import { todoRepository } from "../repositories/repository-factory";
 
-export function TodoContainer() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
+interface TodoContainerProps {
+  todos: Todo[];
+  searchTerm: string;
+  setSearchTerm: (searchTerm: string) => void;
+  loading: boolean;
+}
 
-  const fetchTodos = useCallback(async () => {
-    setLoading(true);
-    const todosData = await todoRepository.getManyBy({
-      sortBy: { dueDate: "asc" },
-      searchBy: { title: searchTerm === "" ? undefined : searchTerm },
-    });
-    setTodos(todosData);
-    setLoading(false);
-  }, [searchTerm]);
-
-  console.log("todoContainer render");
-
-  useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
-
+export function TodoContainer({
+  todos,
+  loading,
+  searchTerm,
+  setSearchTerm,
+}: TodoContainerProps) {
   return (
     <Stack flexGrow={1}>
       <SearchTodoHeader

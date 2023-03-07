@@ -2,16 +2,35 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { AddTodo } from "../components/AddTodo";
 import { TodoContainer } from "../components/TodoContainer";
 import { useThemeMediaQuery } from "../../../styles/hooks";
 import { AddTodoModal } from "../components/AddTodoModal";
+import { Todo } from "../entities/todo";
+import { todoRepository } from "../repositories/repository-factory";
 
 export function TodoPage() {
   const isDownLg = useThemeMediaQuery((theme) => theme.breakpoints.down("lg"));
   const [open, setOpen] = useState(false);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchTodos = useCallback(async () => {
+    setLoading(true);
+    const todosData = await todoRepository.getManyBy({
+      sortBy: { dueDate: "asc" },
+      searchBy: { title: searchTerm === "" ? undefined : searchTerm },
+    });
+    setTodos(todosData);
+    setLoading(false);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
 
   const onClose = () => {
     setOpen(false);
@@ -28,6 +47,7 @@ export function TodoPage() {
         horizontal: "right",
       },
     });
+    fetchTodos();
   };
 
   return (
@@ -62,7 +82,12 @@ export function TodoPage() {
         ) : (
           <AddTodo cardWidth={500} onNewTodo={onNewTodo} />
         )}
-        <TodoContainer />
+        <TodoContainer
+          todos={todos}
+          loading={loading}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
       </Stack>
       {isDownLg && (
         <Fab
