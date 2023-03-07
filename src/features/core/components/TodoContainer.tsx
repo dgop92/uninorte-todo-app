@@ -12,6 +12,8 @@ interface TodoContainerProps {
   loading: boolean;
   showPendingOnly: boolean;
   onShowPendingOnlyChange: (showPendingOnly: boolean) => void;
+  onTodoStatusChange: (todo: Todo) => void;
+  onTodoDeleted: (todo: Todo) => void;
 }
 
 export function TodoContainer({
@@ -21,6 +23,8 @@ export function TodoContainer({
   setSearchTerm,
   showPendingOnly,
   onShowPendingOnlyChange,
+  onTodoStatusChange,
+  onTodoDeleted,
 }: TodoContainerProps) {
   return (
     <Stack flexGrow={1}>
@@ -46,7 +50,12 @@ export function TodoContainer({
         }}
       >
         {todos.map((todo) => (
-          <TodoItem key={todo.id} todo={todo} />
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            onTodoStatusChange={onTodoStatusChange}
+            onTodoDeleted={onTodoDeleted}
+          />
         ))}
       </Box>
     </Stack>

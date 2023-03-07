@@ -1,4 +1,5 @@
 import ToggleButton from "@mui/material/ToggleButton";
+import Tooltip from "@mui/material/Tooltip";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { TextField } from "../../../components/TextField";
 import { BaseCard } from "./BaseCard";
@@ -37,21 +38,23 @@ export function TodoHeader({
         value={searchTerm}
         onChange={onChange}
       />
-      <ToggleButton
-        color="primary"
-        value="check"
-        selected={showPendingOnly}
-        onChange={() => onShowPendingOnlyChange(!showPendingOnly)}
-        sx={{
-          height: "fit-content",
-          mx: 1,
-          mt: 0.5,
-          fontSize: "1.6rem",
-          borderRadius: "1rem",
-        }}
-      >
-        <MoreHorizIcon fontSize="inherit" />
-      </ToggleButton>
+      <Tooltip title="Show pending todo's only">
+        <ToggleButton
+          color="primary"
+          value="check"
+          selected={showPendingOnly}
+          onChange={() => onShowPendingOnlyChange(!showPendingOnly)}
+          sx={{
+            height: "fit-content",
+            mx: 1,
+            mt: 0.5,
+            fontSize: "1.6rem",
+            borderRadius: "1rem",
+          }}
+        >
+          <MoreHorizIcon fontSize="inherit" />
+        </ToggleButton>
+      </Tooltip>
     </BaseCard>
   );
 }

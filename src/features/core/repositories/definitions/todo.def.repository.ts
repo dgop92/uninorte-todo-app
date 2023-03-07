@@ -3,6 +3,7 @@ import { TodoCreateInput, TodoSearchInput } from "../../schema-types";
 
 export interface ITodoRepository {
   create(input: TodoCreateInput): Promise<Todo>;
+  changeTodoStatus(currentTodo: Todo): Promise<Todo>;
   delete(id: number): Promise<void>;
   getById(id: number): Promise<Todo>;
   getManyBy(input: TodoSearchInput): Promise<Todo[]>;

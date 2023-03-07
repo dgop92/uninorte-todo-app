@@ -37,6 +37,14 @@ export class JsonServerTodoRepository implements ITodoRepository {
     return data;
   }
 
+  async changeTodoStatus(currentTodo: Todo): Promise<Todo> {
+    const url = `${this.baseUrl}/${currentTodo.id}`;
+    const { data } = await axiosClient.patch<JsonServerTodo>(url, {
+      completed: !currentTodo.completed,
+    });
+    return jsonServerTodoToDomain(data);
+  }
+
   async delete(id: number): Promise<void> {
     const url = `${this.baseUrl}/${id}`;
     await axiosClient.delete(url);

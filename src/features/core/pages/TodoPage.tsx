@@ -44,6 +44,16 @@ export function TodoPage() {
     setShowPendingOnly(pendingOnly);
   };
 
+  const onTodoStatusChange = async (todo: Todo) => {
+    await todoRepository.changeTodoStatus(todo);
+    fetchTodos();
+  };
+
+  const onTodoDeleted = async (todo: Todo) => {
+    await todoRepository.delete(todo.id);
+    fetchTodos();
+  };
+
   const { enqueueSnackbar } = useSnackbar();
 
   const onNewTodo = () => {
@@ -98,6 +108,8 @@ export function TodoPage() {
           setSearchTerm={setSearchTerm}
           showPendingOnly={showPendingOnly}
           onShowPendingOnlyChange={onShowPendingOnlyChange}
+          onTodoStatusChange={onTodoStatusChange}
+          onTodoDeleted={onTodoDeleted}
         />
       </Stack>
       {isDownLg && (

@@ -63,6 +63,28 @@ describe("todo repository", () => {
     });
   });
 
+  describe("Update", () => {
+    let todo1: Todo;
+
+    beforeAll(async () => {
+      await deleteAllTodos();
+    });
+
+    beforeEach(async () => {
+      todo1 = await todoRepository.create({
+        title: "test todo",
+        dueDate: new Date("2023-09-14T01:32:53.104Z"),
+      });
+    });
+
+    it("should mark a todo as completed", async () => {
+      await todoRepository.changeTodoStatus(todo1);
+      const updatedTodo = await todoRepository.getById(todo1.id);
+      expect(updatedTodo.completed).toBe(true);
+      expect(updatedTodo.title).toBe(todo1.title);
+    });
+  });
+
   describe("Get Many By", () => {
     beforeAll(async () => {
       await deleteAllTodos();

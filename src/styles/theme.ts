@@ -62,12 +62,16 @@ export const muiTheme = createTheme({
       },
     },
     MuiIconButton: {
+      defaultProps: {
+        disableFocusRipple: true,
+        disableRipple: true,
+      },
       styleOverrides: {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         colorPrimary: ({ theme }) => ({
           "&:hover": {
-            backgroundColor: alpha(theme.palette.primary.main, 0.85),
+            backgroundColor: alpha(theme.palette.primary.main, 0.1),
           },
         }),
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
