@@ -79,6 +79,26 @@ export const muiTheme = createTheme({
         }),
       },
     },
+    MuiToggleButton: {
+      defaultProps: {
+        disableFocusRipple: true,
+        disableRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          textTransform: "capitalize",
+        },
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        primary: ({ theme }) => ({
+          backgroundColor: alpha(theme.palette.primary.main, 0.85),
+          "&:hover": {
+            backgroundColor: alpha(theme.palette.primary.main, 0.85),
+          },
+        }),
+      },
+    },
   },
 });
 

@@ -5,7 +5,7 @@ export function getURLSearchParamsFromObject(
   if (obj) {
     Object.keys(obj).forEach((key) => {
       const value = obj[key];
-      if (value) {
+      if (value !== undefined) {
         urlSearchParams.set(key, value.toString());
       }
     });

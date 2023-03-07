@@ -16,6 +16,7 @@ export function TodoPage() {
   const [open, setOpen] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showPendingOnly, setShowPendingOnly] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const fetchTodos = useCallback(async () => {
@@ -23,10 +24,13 @@ export function TodoPage() {
     const todosData = await todoRepository.getManyBy({
       sortBy: { dueDate: "asc" },
       searchBy: { title: searchTerm === "" ? undefined : searchTerm },
+      filterBy: {
+        completed: showPendingOnly ? false : undefined,
+      },
     });
     setTodos(todosData);
     setLoading(false);
-  }, [searchTerm]);
+  }, [searchTerm, showPendingOnly]);
 
   useEffect(() => {
     fetchTodos();
@@ -34,6 +38,10 @@ export function TodoPage() {
 
   const onClose = () => {
     setOpen(false);
+  };
+
+  const onShowPendingOnlyChange = (pendingOnly: boolean) => {
+    setShowPendingOnly(pendingOnly);
   };
 
   const { enqueueSnackbar } = useSnackbar();
@@ -51,7 +59,7 @@ export function TodoPage() {
   };
 
   return (
-    <Stack>
+    <Stack minHeight="100vh">
       <Typography
         variant="h2"
         component="h1"
@@ -71,6 +79,7 @@ export function TodoPage() {
         width="100%"
         alignItems="flex-start"
         alignSelf="center"
+        flexGrow={1}
         maxWidth={1600}
         gap={2}
         sx={{ px: { xs: 1, sm: 2 } }}
@@ -87,6 +96,8 @@ export function TodoPage() {
           loading={loading}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          showPendingOnly={showPendingOnly}
+          onShowPendingOnlyChange={onShowPendingOnlyChange}
         />
       </Stack>
       {isDownLg && (

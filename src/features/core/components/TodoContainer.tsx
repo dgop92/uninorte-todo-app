@@ -1,7 +1,7 @@
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
-import { SearchTodoHeader } from "./SearchTodoHeader";
+import { TodoHeader } from "./TodoHeader";
 import { TodoItem } from "./TodoItem";
 import { Todo } from "../entities/todo";
 
@@ -10,6 +10,8 @@ interface TodoContainerProps {
   searchTerm: string;
   setSearchTerm: (searchTerm: string) => void;
   loading: boolean;
+  showPendingOnly: boolean;
+  onShowPendingOnlyChange: (showPendingOnly: boolean) => void;
 }
 
 export function TodoContainer({
@@ -17,18 +19,22 @@ export function TodoContainer({
   loading,
   searchTerm,
   setSearchTerm,
+  showPendingOnly,
+  onShowPendingOnlyChange,
 }: TodoContainerProps) {
   return (
     <Stack flexGrow={1}>
-      <SearchTodoHeader
+      <TodoHeader
         searchTerm={searchTerm}
         onSearchTermChange={setSearchTerm}
+        showPendingOnly={showPendingOnly}
+        onShowPendingOnlyChange={onShowPendingOnlyChange}
       />
       {loading && (
         <LinearProgress sx={{ mt: 5, width: "95%", alignSelf: "center" }} />
       )}
       <Box
-        mt={4}
+        my={4}
         gap={2}
         sx={{
           display: "grid",
