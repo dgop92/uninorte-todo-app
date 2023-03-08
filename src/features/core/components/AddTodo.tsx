@@ -1,5 +1,5 @@
 /* eslint-disable react/require-default-props */
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import Typography from "@mui/material/Typography";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { useForm, SubmitHandler } from "react-hook-form";
