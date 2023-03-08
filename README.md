@@ -4,7 +4,7 @@ Another todo application with the following features:
 
 The data model of a todo item is:
 
-```javascript
+```typescript
 interface Todo {
   id: number;
   title: string;
@@ -17,8 +17,8 @@ interface Todo {
 The requirements of the application are
 
 - Add and remove todo items
-- search todo’s by title
-- filter by completed
+- Search todo’s by title
+- Filter by completed
 
 [Instructions repository](https://github.com/LuisGalviz/Prueba-CRD)
 
@@ -37,8 +37,10 @@ npm install
 Before starting the json server copy the contents of `db.base.json` into `db.json`
 
 ```
-json-server --delay 500 --port 3004 db.json
+json-server --delay 50 --port 3004 db.json
 ```
+
+You can ignore this step if you use InMemory Repository (look .env file)
 
 ### Run the app in localhost
 
@@ -47,6 +49,10 @@ npm run dev
 ```
 
 ## Testing
+
+I decided to just add a few tests to showcase the test framework.
+
+_Note:_ The tests only work for JsonServer Repository
 
 ### Start the JSON server
 
@@ -59,3 +65,9 @@ json-server --delay 500 --port 3004 db.json
 ```
 npm run test
 ```
+
+## General notes
+
+- The sorting logic is incorrect because the JsonServer Repository does not support date comparison.
+- State management can be improved by utilizing React context.
+- Currently, the project is deployed using an InMemory Repository. It may be worth considering hosting a dedicated server for the backend instead.
