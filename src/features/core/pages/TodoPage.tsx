@@ -4,6 +4,7 @@ import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { AddTodo } from "../components/AddTodo";
 import { TodoContainer } from "../components/TodoContainer";
 import { useThemeMediaQuery } from "../../../styles/hooks";
@@ -11,30 +12,51 @@ import { AddTodoModal } from "../components/AddTodoModal";
 import { Todo } from "../entities/todo";
 import { todoRepository } from "../repositories/repository-factory";
 
+async function getTodos({
+  searchTerm,
+  showPendingOnly,
+}: {
+  searchTerm: string;
+  showPendingOnly: boolean;
+}) {
+  const result = await todoRepository.getManyBy({
+    sortBy: { dueDate: "asc" },
+    searchBy: { title: searchTerm === "" ? undefined : searchTerm },
+    filterBy: {
+      completed: showPendingOnly ? false : undefined,
+    },
+  });
+  return result;
+}
+
 export function TodoPage() {
   const isDownLg = useThemeMediaQuery((theme) => theme.breakpoints.down("lg"));
   const [open, setOpen] = useState(false);
-  const [todos, setTodos] = useState<Todo[]>([]);
+  // const [todos, setTodos] = useState<Todo[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showPendingOnly, setShowPendingOnly] = useState(true);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  const fetchTodos = useCallback(async () => {
-    setLoading(true);
-    const todosData = await todoRepository.getManyBy({
-      sortBy: { dueDate: "asc" },
-      searchBy: { title: searchTerm === "" ? undefined : searchTerm },
-      filterBy: {
-        completed: showPendingOnly ? false : undefined,
-      },
-    });
-    setTodos(todosData);
-    setLoading(false);
-  }, [searchTerm, showPendingOnly]);
+  /*
+  placeholderData: [], if you use placeholderData, you must use
+  result.data! to access the data
+  */
 
-  useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
+  const result = useQuery({
+    queryKey: ["todos", { searchTerm, showPendingOnly }],
+    queryFn: () => getTodos({ searchTerm, showPendingOnly }),
+  });
+
+  const loading = result.isLoading;
+
+  let todos: Todo[] = [];
+  if (!loading && !result.isError) {
+    todos = result.data;
+  }
+
+  if (result.isError) {
+    console.log(result.error);
+  }
 
   const onClose = () => {
     setOpen(false);
@@ -44,7 +66,7 @@ export function TodoPage() {
     setShowPendingOnly(pendingOnly);
   };
 
-  const onTodoStatusChange = async (todo: Todo) => {
+  /* const onTodoStatusChange = async (todo: Todo) => {
     await todoRepository.changeTodoStatus(todo);
     fetchTodos();
   };
@@ -52,21 +74,7 @@ export function TodoPage() {
   const onTodoDeleted = async (todo: Todo) => {
     await todoRepository.delete(todo.id);
     fetchTodos();
-  };
-
-  const { enqueueSnackbar } = useSnackbar();
-
-  const onNewTodo = () => {
-    enqueueSnackbar("New todo added", {
-      variant: "success",
-      autoHideDuration: 2000,
-      anchorOrigin: {
-        vertical: "bottom",
-        horizontal: "right",
-      },
-    });
-    fetchTodos();
-  };
+  }; */
 
   return (
     <Stack minHeight="100vh">
@@ -96,10 +104,10 @@ export function TodoPage() {
       >
         {isDownLg ? (
           <AddTodoModal open={open} onClose={onClose}>
-            <AddTodo cardWidth="100%" onNewTodo={onNewTodo} />
+            <AddTodo cardWidth="100%" />
           </AddTodoModal>
         ) : (
-          <AddTodo cardWidth={500} onNewTodo={onNewTodo} />
+          <AddTodo cardWidth={500} />
         )}
         <TodoContainer
           todos={todos}
@@ -108,8 +116,8 @@ export function TodoPage() {
           setSearchTerm={setSearchTerm}
           showPendingOnly={showPendingOnly}
           onShowPendingOnlyChange={onShowPendingOnlyChange}
-          onTodoStatusChange={onTodoStatusChange}
-          onTodoDeleted={onTodoDeleted}
+          onTodoStatusChange={(todo) => console.log(todo)}
+          onTodoDeleted={(todo) => console.log(todo)}
         />
       </Stack>
       {isDownLg && (

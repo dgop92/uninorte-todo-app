@@ -3,6 +3,11 @@ import { Todo } from "../entities/todo";
 import { TodoCreateInput, TodoSearchInput } from "../schema-types";
 import { ITodoRepository } from "./definitions/todo.def.repository";
 
+function sleep(ms: number) {
+  // eslint-disable-next-line no-promise-executor-return
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const DEFAULT_TODOS: Todo[] = [
   {
     id: 1,
@@ -30,7 +35,7 @@ const DEFAULT_TODOS: Todo[] = [
 export class InMemoryTodoRepository implements ITodoRepository {
   private static TODOS: Todo[] = DEFAULT_TODOS;
 
-  create(input: TodoCreateInput): Promise<Todo> {
+  async create(input: TodoCreateInput): Promise<Todo> {
     const todo: Todo = {
       // is just for testing purposes
       id: randomInRange(1, 100_000),
@@ -40,10 +45,12 @@ export class InMemoryTodoRepository implements ITodoRepository {
       dueDate: input.dueDate,
     };
     InMemoryTodoRepository.TODOS.push(todo);
+    console.log("created todo");
+    await sleep(1000);
     return Promise.resolve(todo);
   }
 
-  changeTodoStatus(currentTodo: Todo): Promise<Todo> {
+  async changeTodoStatus(currentTodo: Todo): Promise<Todo> {
     const todo = InMemoryTodoRepository.TODOS.find(
       (t) => t.id === currentTodo.id
     );
@@ -51,25 +58,31 @@ export class InMemoryTodoRepository implements ITodoRepository {
       throw new Error("Todo not found");
     }
     todo.completed = !todo.completed;
+    console.log("changed todo status");
+    await sleep(1000);
     return Promise.resolve(todo);
   }
 
-  delete(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     InMemoryTodoRepository.TODOS = InMemoryTodoRepository.TODOS.filter(
       (t) => t.id !== id
     );
+    console.log("deleted todo");
+    await sleep(1000);
     return Promise.resolve();
   }
 
-  getById(id: number): Promise<Todo> {
+  async getById(id: number): Promise<Todo> {
     const todo = InMemoryTodoRepository.TODOS.find((t) => t.id === id);
     if (!todo) {
       throw new Error("Todo not found");
     }
+    console.log("got todo by id");
+    await sleep(1000);
     return Promise.resolve(todo);
   }
 
-  getManyBy(input: TodoSearchInput): Promise<Todo[]> {
+  async getManyBy(input: TodoSearchInput): Promise<Todo[]> {
     const titleSearchTerm = input.searchBy?.title;
     const completed = input.filterBy?.completed;
     const sortByCreatedAt = input.sortBy?.createdAt;
@@ -102,7 +115,9 @@ export class InMemoryTodoRepository implements ITodoRepository {
         return b.dueDate.getTime() - a.dueDate.getTime();
       });
     }
-
+    console.log("got many todos");
+    await sleep(1000);
+    // throw new Error("Something went wrong");
     return Promise.resolve(todos);
   }
 }
