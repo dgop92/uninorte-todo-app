@@ -26,3 +26,7 @@ export const TodoSearchInputSchema = Joi.object({
     dueDate: Joi.string().valid("asc", "desc").optional(),
   }).optional(),
 }).meta({ className: "TodoSearchInput" });
+
+export function isTodoOverdue(todo: Todo) {
+  return todo.dueDate.getTime() < Date.now();
+}

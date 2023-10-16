@@ -2,9 +2,8 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Fab from "@mui/material/Fab";
 import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useEffect, useState } from "react";
-import { useSnackbar } from "notistack";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AddTodo } from "../components/AddTodo";
 import { TodoContainer } from "../components/TodoContainer";
 import { useThemeMediaQuery } from "../../../styles/hooks";
@@ -45,6 +44,7 @@ export function TodoPage() {
   const result = useQuery({
     queryKey: ["todos", { searchTerm, showPendingOnly }],
     queryFn: () => getTodos({ searchTerm, showPendingOnly }),
+    staleTime: 20000,
   });
 
   const loading = result.isLoading;
@@ -65,16 +65,6 @@ export function TodoPage() {
   const onShowPendingOnlyChange = (pendingOnly: boolean) => {
     setShowPendingOnly(pendingOnly);
   };
-
-  /* const onTodoStatusChange = async (todo: Todo) => {
-    await todoRepository.changeTodoStatus(todo);
-    fetchTodos();
-  };
-
-  const onTodoDeleted = async (todo: Todo) => {
-    await todoRepository.delete(todo.id);
-    fetchTodos();
-  }; */
 
   return (
     <Stack minHeight="100vh">
@@ -116,8 +106,6 @@ export function TodoPage() {
           setSearchTerm={setSearchTerm}
           showPendingOnly={showPendingOnly}
           onShowPendingOnlyChange={onShowPendingOnlyChange}
-          onTodoStatusChange={(todo) => console.log(todo)}
-          onTodoDeleted={(todo) => console.log(todo)}
         />
       </Stack>
       {isDownLg && (

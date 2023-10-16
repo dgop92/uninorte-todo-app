@@ -5,6 +5,8 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSnackbar } from "notistack";
 import { PrimaryButton } from "../../../components/buttons";
 import { TextField } from "../../../components/TextField";
 import { BaseCard } from "./BaseCard";
@@ -21,29 +23,64 @@ const TodoCreateInputFormSchema = TodoCreateInputSchema.fork(
 
 interface AddTodoCardProps {
   cardWidth?: number | string;
-  onNewTodo: (todo: Todo) => void;
 }
 
-export function AddTodo({ onNewTodo, cardWidth = 500 }: AddTodoCardProps) {
+export function AddTodo({ cardWidth = 500 }: AddTodoCardProps) {
   const [dueDate, setDueDate] = useState<dayjs.Dayjs | null>(
     dayjs().add(5, "day")
   );
   const [dueDateError, setDueDateError] = useState<string | null>(null);
 
-  const onSubmit: SubmitHandler<TodoCreateInputForm> = async (data) => {
-    try {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const mutation = useMutation({
+    mutationFn: async (data: TodoCreateInputForm) => {
       if (validateDueDate(dueDate)) {
         const todo = await todoRepository.create({
           title: data.title,
           dueDate: dueDate.toDate(),
         });
-        onNewTodo(todo);
+        return todo;
       }
-    } catch (e) {
-      if (e instanceof Error) {
-        setDueDateError(e.message);
+      throw new Error("Unexpected error, impossible to reach this point");
+    },
+    onError(error) {
+      console.log("mutation error");
+      if (error instanceof Error) {
+        // TODO: make sure error is related to dueDate
+        setDueDateError(error.message);
       }
-    }
+    },
+    onSuccess(data) {
+      console.log("mutation success", data);
+      enqueueSnackbar("New todo added", {
+        variant: "success",
+        autoHideDuration: 2000,
+        anchorOrigin: {
+          vertical: "bottom",
+          horizontal: "right",
+        },
+      });
+      // invalidate all todos and refetch
+      // queryClient.invalidateQueries({ queryKey: ["todos"] });
+
+      // just update the cache, no need to refetch all todos
+      // but we need to specify the filter params
+      queryClient.setQueryData<Todo[]>(
+        ["todos", { searchTerm: "", showPendingOnly: true }],
+        (oldData) => {
+          if (oldData) {
+            return [...oldData, data];
+          }
+          return oldData;
+        }
+      );
+    },
+  });
+
+  const onSubmit: SubmitHandler<TodoCreateInputForm> = async (data) => {
+    await mutation.mutateAsync(data);
   };
 
   const handleChange = (date: dayjs.Dayjs | null) => {
@@ -98,6 +135,7 @@ export function AddTodo({ onNewTodo, cardWidth = 500 }: AddTodoCardProps) {
       <PrimaryButton fullWidth type="submit" sx={{ mt: 2 }}>
         Create
       </PrimaryButton>
+      <p>{mutation.isLoading && <span>Adding todo...</span>}</p>
     </BaseCard>
   );
 }
